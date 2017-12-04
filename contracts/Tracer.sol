@@ -5,22 +5,22 @@ contract Tracer {
     string lon;
     string lat;
     bool passed;
-    string id;
+    string desc;
   }
 
   mapping (address => Unit) public Tracks;
 
-  function UpdateTrail(address i, string lo, string la, bool p, string n) public {
+  function UpdateTrail(string lo, string la, bool p, string n) public {
     Unit memory temp;
     temp.lon = lo;
     temp.lat = la;
     temp.passed = p;
-    temp.id = n;
-    Tracks[i] = temp;
+    temp.desc = n;
+    Tracks[msg.sender] = temp;
   }
   
   function GetTrail(address i) public returns(string, string, bool, string) {
-      return (Tracks[i].lon, Tracks[i].lat, Tracks[i].passed, Tracks[i].id);
+      return (Tracks[i].lon, Tracks[i].lat, Tracks[i].passed, Tracks[i].desc);
   }
 }
 
