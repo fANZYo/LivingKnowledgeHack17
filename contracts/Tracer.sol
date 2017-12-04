@@ -5,27 +5,22 @@ contract Tracer {
     string lon;
     string lat;
     bool passed;
+    string id;
   }
 
-  address[] id;
+  mapping (address => Unit) public Tracks;
 
-  mapping (address => string) lon;
-  mapping (address => string) lat;
-  mapping (address => bool) passed;
-
-  function UpdateTrail(string longitude, string latitude, bool p) public {
-    id.push(msg.sender);
-    lon[msg.sender] = longitude;
-    lat[msg.sender] = latitude;
-    passed[msg.sender] = p;
+  function UpdateTrail(address i, string lo, string la, bool p, string n) public {
+    Unit memory temp;
+    temp.lon = lo;
+    temp.lat = la;
+    temp.passed = p;
+    temp.id = n;
+    Tracks[i] = temp;
   }
   
-  function GetTrail(address lookup) public returns(string) {
-    Unit temp;
-    temp.lon = lon[lookup];
-    temp.lat = lat[lookup];
-    temp.passed = passed[lookup];
-    return 'hello';
+  function GetTrail(address i) public returns(string, string, bool, string) {
+      return (Tracks[i].lon, Tracks[i].lat, Tracks[i].passed, Tracks[i].id);
   }
 }
 
