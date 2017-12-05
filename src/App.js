@@ -8,8 +8,9 @@ class App extends React.Component {
 
     this.state = {
       contract: undefined,
-      contractAddr: '0xEaFE97897Be6f5b0b947bAc9218992bF6F0569Db',
+      contractAddr: '0xE7D3e6A4b71352436579D7F3C7D8a181Ca704947',
       lookup: undefined,
+      account: undefined,
     }
   }
 
@@ -31,6 +32,10 @@ class App extends React.Component {
       this.state.contract.deploy({data: TracerABI.bytecode});
     });
 
+    web3.eth.getAccounts((error, accounts) => {
+      this.setState({account: accounts[0]});
+    });
+
     // Use the UpdateTrail function from the contract. Should add one entry to each struc
     // tracer.methods.UpdateTrail('0xA6190a8c30C9F42f11981f2dcFc8f75854d2dD23', '-0.123', '52.010', true, 'william')
     //   .send({from: '0xA6190a8c30C9F42f11981f2dcFc8f75854d2dD23'}, (err, res) => console.log(err, res))
@@ -39,7 +44,7 @@ class App extends React.Component {
   }
 
   lookupHandler(event) {
-    this.setState({ lookup: document.querySelector('input').value }, () => {
+    this.setState({ lookup: document.querySelector('#lookup').value }, () => {
       // Use the GetTrail function from the contract. Return the string hello.
       this.state.contract.methods.GetTrail(this.state.lookup)
         .call((err, res) => {
@@ -53,14 +58,13 @@ class App extends React.Component {
   inputHandler(event) {
     event.preventDefault();
     const el = event.target;
-    const addr = el.addr;
     const lon = el.lon;
     const lat = el.lat;
     const passed = el.passed;
     const desc = el.desc;
     // Use the UpdateTrail function from the contract. Should add one entry to each struc
-    this.state.contract.methods.UpdateTrail(addr.value, lon.value, lat.value, JSON.parse(passed.value), desc.value)
-      .send({from: addr.value}, (err, res) => console.log(err, res))
+    this.state.contract.methods.UpdateTrail(lon.value, lat.value, JSON.parse(passed.value), desc.value)
+      .send({from: this.state.account}, (err, res) => console.log(err, res))
       .then((res) => console.log(res));
   }
 
@@ -71,7 +75,6 @@ class App extends React.Component {
         <div className="input">
           <h2>Add</h2>
           <form onSubmit={this.inputHandler.bind(this)}>
-            <label style={{display: 'block'}}>Address: <input type="text" name="addr" /></label>
             <label style={{display: 'block'}}>Lon: <input type="text" name="lon" /></label>
             <label style={{display: 'block'}}>Lat: <input type="text" name="lat" /></label>
             <label style={{display: 'block'}}>Passed: <input type="text" name="passed" /></label>
@@ -79,9 +82,9 @@ class App extends React.Component {
             <button type="submit">Submit</button>
           </form>
         </div>
-        <p>0xA6190a8c30C9F42f11981f2dcFc8f75854d2dD23</p>
+        <p>Using {this.state.account}</p>
         <h2>Look-up</h2>
-        <label>Address: <input type="text" name="lookup" /></label>
+        <label>Address: <input id="lookup" type="text" name="lookup" /></label>
         <button type="submit" onClick={this.lookupHandler.bind(this)}>Submit</button>
       </div>
 
