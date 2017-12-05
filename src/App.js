@@ -9,8 +9,8 @@ class App extends React.Component {
     this.state = {
       contract: undefined,
       contractAddr: '0xE7D3e6A4b71352436579D7F3C7D8a181Ca704947',
-      lookup: undefined,
       account: undefined,
+      lookupAddress: ''
     }
   }
 
@@ -44,28 +44,28 @@ class App extends React.Component {
   }
 
   lookupHandler(event) {
-    this.setState({ lookup: document.querySelector('#lookup').value }, () => {
-      // Use the GetTrail function from the contract. Return the string hello.
-      this.state.contract.methods.GetTrail(this.state.lookup)
-        .call((err, res) => {
-          const el = document.createElement('p');
-          el.textContent = JSON.stringify(res);
-          document.body.appendChild(el);
-        });
-    });
+    this.state.contract.methods
+      .GetTrail(this.state.lookupAddress)
+      .call((err, res) => {
+        err && console.log(err);
+        const el = document.createElement('p');
+        el.textContent = JSON.stringify(res);
+        document.body.appendChild(el);
+      });
   }
 
   inputHandler(event) {
     event.preventDefault();
-    const el = event.target;
-    const lon = el.lon;
-    const lat = el.lat;
-    const passed = el.passed;
-    const desc = el.desc;
+    const { lon, lat, passed, desc } = event.target;
     // Use the UpdateTrail function from the contract. Should add one entry to each struc
     this.state.contract.methods.UpdateTrail(lon.value, lat.value, JSON.parse(passed.value), desc.value)
       .send({from: this.state.account}, (err, res) => console.log(err, res))
-      .then((res) => console.log(res));
+      .then((res) => console.log(res))
+      .catch( err => console.log(err));
+  }
+
+  onLookupAddressChange(event) {
+    this.setState({lookupAddress: event.target.value});
   }
 
   render() {
@@ -84,7 +84,17 @@ class App extends React.Component {
         </div>
         <p>Using {this.state.account}</p>
         <h2>Look-up</h2>
-        <label>Address: <input id="lookup" type="text" name="lookup" /></label>
+        {/* <label>Address: <input id="lookup" type="text" name="lookup" /></label> */}
+        <div>
+          <label>
+            lookup Address:
+            <input key="lookupAddress" type="text"
+              value={this.state.lookupAddress}
+              onChange={this.onLookupAddressChange.bind(this)}
+            />
+          </label>
+        </div>
+
         <button type="submit" onClick={this.lookupHandler.bind(this)}>Submit</button>
       </div>
 
