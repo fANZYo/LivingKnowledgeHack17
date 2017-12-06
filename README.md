@@ -1,8 +1,16 @@
+## The problem
+A shipped parcel passes through a series of handler from shipment to delivery, sometimes getting lost. Tracking this parcel can be cumbersome and time consuming leading to customer frustration.
+
+## Solution
+To provide a blockchain based system to parcel tracking. Each handler updates its state upon delivering and receiving the package. This state contains information like; unique ID, possession of the parcel and a comment, allowing us to know exactly where in the chain the parcel got lost.
+
+## Dependencies
+In order to use this Dapp you will need to install [MetaMask](https://metamask.io/) on your browser, create an account and set it to use Ropsten TestNet.
+
 ## Install
-`# npm i -g truffle`
 `$ npm install`
 
-## Contract
+## Modifying the contract
 The build process is a bit messy right now. In order to change the contract you will need to run `truffle compile` from the project folder and then run:
 ```
 $ mv build/contracts/Tracer.json ./src
