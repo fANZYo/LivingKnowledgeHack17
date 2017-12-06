@@ -8,9 +8,9 @@ class App extends React.Component {
 
     this.state = {
       contract: undefined,
-      contractAddr: '0xE7D3e6A4b71352436579D7F3C7D8a181Ca704947',
+      contractAddr: '0x52C9e4D4A61DbBf75F0cdEA02F9fC09AFAF1f456',
       account: undefined,
-      lookupAddress: ''
+      uidLookup: ''
     }
   }
 
@@ -44,8 +44,21 @@ class App extends React.Component {
   }
 
   lookupHandler(event) {
+    event.preventDefault();
     this.state.contract.methods
-      .GetTrail(this.state.lookupAddress)
+      .GetTrail(event.target.uid.value, parseInt(event.target.index.value, 10))
+      .call((err, res) => {
+        err && console.log(err);
+        const el = document.createElement('p');
+        el.textContent = JSON.stringify(res);
+        document.body.appendChild(el);
+      });
+  }
+
+  lengthHandler(event) {
+    event.preventDefault();
+    this.state.contract.methods
+      .GetLength(event.target.uid.value)
       .call((err, res) => {
         err && console.log(err);
         const el = document.createElement('p');
@@ -56,46 +69,61 @@ class App extends React.Component {
 
   inputHandler(event) {
     event.preventDefault();
-    const { lon, lat, passed, desc } = event.target;
+    const { uid, lon, lat, state, desc } = event.target;
     // Use the UpdateTrail function from the contract. Should add one entry to each struc
-    this.state.contract.methods.UpdateTrail(lon.value, lat.value, JSON.parse(passed.value), desc.value)
+    this.state.contract.methods.UpdateTrail(uid.value, lon.value, lat.value, state.value, desc.value)
       .send({from: this.state.account}, (err, res) => console.log(err, res))
       .then((res) => console.log(res))
       .catch( err => console.log(err));
   }
 
-  onLookupAddressChange(event) {
-    this.setState({lookupAddress: event.target.value});
+  lastHandler(event) {
+    event.preventDefault();
+    this.state.contract.methods
+      .GetLast(event.target.uid.value)
+      .call((err, res) => {
+        err && console.log(err);
+        const el = document.createElement('p');
+        el.textContent = JSON.stringify(res);
+        document.body.appendChild(el);
+      });
   }
 
   render() {
     return (
       <div>
+        <p>Using {this.state.account}</p>
         <h1>Hello World</h1>
         <div className="input">
           <h2>Add</h2>
           <form onSubmit={this.inputHandler.bind(this)}>
+            <label style={{display: 'block'}}>Uid: <input type="text" name="uid" /></label>
             <label style={{display: 'block'}}>Lon: <input type="text" name="lon" /></label>
             <label style={{display: 'block'}}>Lat: <input type="text" name="lat" /></label>
-            <label style={{display: 'block'}}>Passed: <input type="text" name="passed" /></label>
+            <label style={{display: 'block'}}>State: <input type="text" name="state" /></label>
             <label style={{display: 'block'}}>Desc: <input type="text" name="desc" /></label>
             <button type="submit">Submit</button>
           </form>
         </div>
-        <p>Using {this.state.account}</p>
-        <h2>Look-up</h2>
-        {/* <label>Address: <input id="lookup" type="text" name="lookup" /></label> */}
-        <div>
-          <label>
-            lookup Address:
-            <input key="lookupAddress" type="text"
-              value={this.state.lookupAddress}
-              onChange={this.onLookupAddressChange.bind(this)}
-            />
-          </label>
-        </div>
 
-        <button type="submit" onClick={this.lookupHandler.bind(this)}>Submit</button>
+        <h2>Look-up</h2>
+        <form onSubmit={this.lookupHandler.bind(this)}>
+          <label style={{display: 'block'}}>Uid: <input type="text" name="uid" /></label>
+          <label style={{display: 'block'}}>Index: <input type="text" name="index" /></label>
+          <button type="submit">Submit</button>
+        </form>
+
+        <h2>Get Length per Uid</h2>
+        <form onSubmit={this.lengthHandler.bind(this)}>
+          <label style={{display: 'block'}}>Uid: <input type="text" name="uid" /></label>
+          <button type="submit">Submit</button>
+        </form>
+
+        <h2>Get Last</h2>
+        <form onSubmit={this.lastHandler.bind(this)}>
+          <label style={{display: 'block'}}>Uid: <input type="text" name="uid" /></label>
+          <button type="submit">Submit</button>
+        </form>
       </div>
 
     );
